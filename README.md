@@ -13,6 +13,8 @@
 
 ### ChatLabs Aiogram Support - Установка
 
+`pip install chatlabs-support[chatlabs_aiogram_support]`
+
 Необходимые переменные окружения:
 - `BACKEND_SCHEMA`
 - `BACKEND_HOST`
@@ -72,6 +74,8 @@ Dialog(
 ## ChatLabs Django Support
 
 ### ChatLabs Django Support - Установка
+
+`pip install chatlabs-support[chatlabs_django_support]`
 
 Для привязки тикетов необходимо определить модель пользователя
 ```python

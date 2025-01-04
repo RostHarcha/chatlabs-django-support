@@ -4,8 +4,8 @@ from ..exceptions import ModuleDependenciesError
 
 if not find_spec('aiogram'):
     raise ModuleDependenciesError(
-        current_module='Aiogram',
-        required_module='chatlabs-framework[aiogram]',
+        current_module='chatlabs_aiogram_support',
+        required_module='chatlabs-support[chatlabs_aiogram_support]',
     )
 
 from aiogram_dialog.widgets.kbd import Start
