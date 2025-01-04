@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "chatlabs-support"
-version = "0.1.2"
+version = "0.1.3"
 description = ""
 authors = ["Rostislaww <rostiki.com@mail.ru>"]
 readme = "README.md"
