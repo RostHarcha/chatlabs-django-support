@@ -25,16 +25,6 @@ jobs:
           fi
           cat is_tag.txt # Логируем содержимое файла для отладки
 
-      - name: Verify tag file exists
-        run: |
-          if [[ -f is_tag.txt ]]; then
-            echo "is_tag.txt exists. Content:"
-            cat is_tag.txt
-          else
-            echo "is_tag.txt does not exist"
-            exit 1
-          fi
-
       - name: Create and push tag
         run: |
           IS_TAG=$(cat is_tag.txt)
@@ -47,3 +37,6 @@ jobs:
           else
             echo "Commit message is not a version tag. Skipping..."
           fi
+        env:
+          TAG: ${{ env.TAG }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
