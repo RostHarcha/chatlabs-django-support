@@ -36,9 +36,14 @@ jobs:
           fi
 
       - name: Create and push tag
-        if: ${{ steps.check_tag.outputs.is_tag == 'true' }}
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag "${{ env.TAG }}"
-          git push origin "${{ env.TAG }}"
+          IS_TAG=$(cat is_tag.txt)
+          if [[ "$IS_TAG" == "true" ]]; then
+            echo "Creating and pushing tag $TAG"
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git tag "$TAG"
+            git push origin "$TAG"
+          else
+            echo "Commit message is not a version tag. Skipping..."
+          fi
