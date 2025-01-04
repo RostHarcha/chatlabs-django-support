@@ -1427,10 +1427,10 @@ test = ["coverage[toml]", "zope.event", "zope.testing"]
 testing = ["coverage[toml]", "zope.event", "zope.testing"]
 
 [extras]
-aiogram = ["aiogram", "aiogram-dialog"]
-django = ["channels", "daphne", "django", "django-filter", "djangorestframework"]
+chatlabs-aiogram-support = ["aiogram", "aiogram-dialog"]
+chatlabs-django-support = ["channels", "daphne", "django", "django-filter", "djangorestframework"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "331ac1fcda0f4c61ed07e2b23b2e2f59b863676b6a261bc384d9c8488f3771a6"
+content-hash = "2207be3a001145e0cab05103810d61bf4549f30a4db8bd631b0b34f76662841a"

@@ -4,6 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["Rostislaww <rostiki.com@mail.ru>"]
 readme = "README.md"
+homepage = "https://github.com/RostHarcha/chatlabs-support"
 
 [tool.poetry.dependencies]
 python = "^3.11"
