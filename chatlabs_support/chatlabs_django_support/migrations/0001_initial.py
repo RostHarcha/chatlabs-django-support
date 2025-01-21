@@ -10,7 +10,6 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('users', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         migrations.swappable_dependency(settings.SUPPORT_TELEGRAM_USER_MODEL),
     ]
