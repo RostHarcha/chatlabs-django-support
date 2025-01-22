@@ -1,4 +1,3 @@
-from asgiref.sync import sync_to_async
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from channels.layers import BaseChannelLayer, get_channel_layer
@@ -38,20 +37,22 @@ class BaseChatConsumer(AsyncJsonWebsocketConsumer):
         await self.remove_from_group(group_name)
         self.ticket_messages_groups_set.discard(group_name)
 
-    async def connect(self):
-        self.ticket_messages_groups_set = set()
-        try:
-            self.manager = await User.objects.aget(
-                pk=self.scope['user'].pk
-            )
-        except User.DoesNotExist:
-            return
-        await self.add_to_group(self.unassigned_tickets_group)
-        for ticket_id in await sync_to_async(list)(
+    @database_sync_to_async
+    def get_ticket_ids(self):
+        return list(
             models.Ticket.objects.filter(
                 support_manager=self.manager
             ).values_list('id', flat=True)
-        ):
+        )
+
+    async def connect(self):
+        self.ticket_messages_groups_set = set()
+        try:
+            self.manager = await User.objects.aget(pk=self.scope['user'].pk)
+        except (User.DoesNotExist, AttributeError, KeyError):
+            return await self.close()
+        await self.add_to_group(self.unassigned_tickets_group)
+        for ticket_id in await self.get_ticket_ids():
             await self.add_ticket_to_group(ticket_id)
         await self.accept()
 
@@ -85,21 +86,15 @@ class ChatConsumerSender(ChatConsumerSerializerMixin, BaseChatConsumer):
         await self.send_json(event)
 
     async def ticket_message_viewed(self, event: dict):
-        event['message'] = await self.serialize_message(
-            event['message']
-        )
+        event['message'] = await self.serialize_message(event['message'])
         await self.send_json(event)
 
     async def ticket_message_new(self, event: dict):
-        event['message'] = await self.serialize_message(
-            event['message']
-        )
+        event['message'] = await self.serialize_message(event['message'])
         await self.send_json(event)
 
     async def ticket_message_list(self, event: dict):
-        event['messages'] = await self.serialize_messages(
-            event['ticket_id']
-        )
+        event['messages'] = await self.serialize_messages(event['ticket_id'])
         await self.send_json(event)
 
 
@@ -193,10 +188,7 @@ class ChatConsumer(ChatConsumerReceiver, ChatConsumerSender):
         return await handler(**content)
 
     async def receive_json(self, content: dict, **_):
-        try:
-            group, message = await self.get_group_and_message(content)
-        except KeyError:
-            group, message = None, None
+        group, message = await self.get_group_and_message(content)
         if all([group, message]):
             await self._channel_layer.group_send(
                 group,
