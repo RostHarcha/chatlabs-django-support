@@ -28,7 +28,7 @@ class BaseChatConsumer(AsyncJsonWebsocketConsumer):
             self.channel_name,
         )
         async for ticket in models.Ticket.objects.filter(
-            support_manager=self.manager
+            support_manager__pk=self.manager.pk
         ):
             await self._channel_layer.group_add(
                 self.ticket_messages_group(ticket.id),
