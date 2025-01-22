@@ -147,7 +147,7 @@ urlpatterns = [
 ```json
 {
     "type": "ticket.assign",
-    "id": 16 // ID тикета
+    "ticket_id": 16 // ID тикета
 }
 ```
 
