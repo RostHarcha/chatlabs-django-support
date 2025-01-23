@@ -1,42 +1,61 @@
+{% extends 'admin/base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <title>Поддержка пользователей</title>
-</head>
-<body>
-    <p>{{ request.manager }}</p>
-    {{ my_tickets }}
-    {{ unassigned_tickets }}
-    <div id="chat-log"></div>
-    <input placeholder="Введите сообщение..." id="chat-message-input" type="text" size="100">
-    <button id="chat-message-submit">Отправить</button>
 
-    <script>
-        const roomName = "{{ room_name }}";
-        const chatSocket = new WebSocket(
-            'ws://' + window.location.host +
-            '/ws/support/manager/'
-        );
+{% block extrastyle %}
+{{ block.super }}
+<script type="module" src="{% static 'support/js/index.js' %}" defer></script>
+<link rel="stylesheet" href="{% static 'support/css/style.css' %}" defer>
+{% endblock %}
 
-        chatSocket.onmessage = function(e) {
-            const data = JSON.parse(e.data);
-            const message = data['message'];
-            document.querySelector('#chat-log').innerHTML += (message + '<br>'); // знаете, почему именно <br>?
-        };
+{% block content %}
+<div class="container">
+    <div class="sidebar">
+        <!-- Список тикетов -->
+        <h2>Чаты</h2>
+        <div class="ticket-list">
+        </div>
+    </div>
 
-        chatSocket.onclose = function(e) {
-            console.error('Chat socket closed unexpectedly');
-        };
+    <div class="chat">
+        <!-- Заголовок чата -->
+        <div class="chat-header">
+            <h4 id="ticket-title">Чат</h4>
+        </div>
 
-        document.querySelector('#chat-message-submit').onclick = function(e) {
-            const messageInputDom = document.querySelector('#chat-message-input');
-            const message = messageInputDom.value;
-            chatSocket.send(JSON.stringify({
-                'message': message
-            }));
-            messageInputDom.value = '';
-        };
-    </script>
-</body>
-</html>
+        <!-- Окно сообщений -->
+        <div class="chat-window" id="chat-window">
+            <!-- Пример сообщения пользователя -->
+            <div class="chat-message user-message">
+                <strong>Пользователь:</strong>
+                <p>Здравствуйте, у меня проблема с доступом. Здравствуйте, у меня проблема с доступом. Здравствуйте, у меня проблема с доступом. Здравствуйте, у меня проблема с доступом. Здравствуйте, у меня проблема с доступом. Здравствуйте, у меня проблема с доступом.</p>
+                <small>15:30</small>
+            </div>
+
+            <!-- Пример сообщения менеджера -->
+            <div class="chat-message support-message">
+                <strong>Менеджер:</strong>
+                <p>Добрый день! Уточните, какой доступ? Добрый день! Уточните, какой доступ? Добрый день! Уточните, какой доступ? Добрый день! Уточните, какой доступ?Добрый день! Уточните, какой доступ?</p>
+                <small>15:32</small>
+            </div>
+        </div>
+
+        <!-- Форма отправки сообщения -->
+        <div class="chat-footer">
+            <form id="message-form">
+                <input 
+                    type="text" 
+                    class="input" 
+                    id="message-input" 
+                    placeholder="Напишите сообщение..." 
+                    required
+                />
+                <input 
+                    type="submit" 
+                    class="default" 
+                    value="Отправить"
+                />
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}
