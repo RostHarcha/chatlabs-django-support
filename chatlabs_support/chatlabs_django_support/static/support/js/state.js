@@ -1,9 +1,13 @@
-let currentChatId = null;
-
-export const setCurrentChatId = (id) => {
-    currentChatId = id;
-};
-
-export const getCurrentChatId = () => {
-    return currentChatId;
-};
+export const state = {
+    currentChatId: null,
+    messages: [],
+    setCurrentChatId: function(id) {
+        this.currentChatId = id;
+    },
+    getCurrentChatId: function() {
+        return this.currentChatId;
+    },
+    addMessage: function(message) {
+        this.messages.push(message);
+    }
+}

@@ -1,1 +1,1 @@
-export const SOCKET_URL = "ws://localhost:8000/ws/support/manager/"
+export const SOCKET_URL = "ws://127.0.0.1:8000/ws/support/manager/"

@@ -8,5 +8,5 @@ export function renderMessageList(messages) {
         chatWindow.appendChild(messageElement);
     });
 
-    chatWindow.scrollTop = chatWindow.scrollHeight; // Прокрутка вниз
+    chatWindow.scrollTop = chatWindow.scrollHeight;
 }

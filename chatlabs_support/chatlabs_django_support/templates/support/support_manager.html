@@ -14,6 +14,13 @@
         <h2>Чаты</h2>
         <div class="ticket-list">
         </div>
+        {% comment %} {% for ticket in unassigned_tickets %}
+        <div class="ticket">
+            <h1>{{ticket.title}}</h1>
+            <small>Создан: {{ticket.created_at}}</small>
+            <div>Менеджер: {{ticket.support_manager}}</div>
+        </div>
+        {% endfor %} {% endcomment %}
     </div>
 
     <div class="chat">
@@ -52,4 +59,8 @@
         </div>
     </div>
 </div>
+<script>
+    {% comment %} const tickets = JSON.parse({{unassigned_tickets|safe}}) {% endcomment %}
+    {% comment %} console.log(tickets) {% endcomment %}
+</script>
 {% endblock content %}
