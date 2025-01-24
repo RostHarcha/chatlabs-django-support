@@ -2,15 +2,13 @@ import { SOCKET_URL } from "./const/SOCKET_URL.js";
 import { createMessage } from "./helpers/createMessage.js";
 import { addTicketToList } from "./helpers/addTicketToList.js";
 import {renderMessageList} from "./helpers/renderMessageList.js"
+import { getCookieByName } from "./helpers/getCookieByName.js";
 
-// const ws = new WebSocket(SOCKET_URL);
+const ws = new WebSocket(SOCKET_URL)
+ws.onclose = () => {
+    console.log(`Соединение с ${SOCKET_URL} закрыто.`);
+}
 
-// ws.onopen = () => {
-//     console.log(`Соединение с ${SOCKET_URL} установлено.`);
-// };
-// ws.onclose = () => {
-//     console.log(`Соединение с ${SOCKET_URL} закрыто.`);
-// }
 
 const chatWindow = document.querySelector('.chat-window')
 

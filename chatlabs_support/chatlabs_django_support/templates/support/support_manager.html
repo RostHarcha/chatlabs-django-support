@@ -19,7 +19,8 @@
     <div class="chat">
         <!-- Заголовок чата -->
         <div class="chat-header">
-            <h4 id="ticket-title">Чат</h4>
+            <h4 id="ticket-title">have a new</h4>
+            <input id="ticket-assign" type="submit" class="default" value="Принять в работу" />
         </div>
 
         <!-- Окно сообщений -->
@@ -42,18 +43,11 @@
         <!-- Форма отправки сообщения -->
         <div class="chat-footer">
             <form id="message-form">
-                <input 
-                    type="text" 
-                    class="input" 
-                    id="message-input" 
-                    placeholder="Напишите сообщение..." 
-                    required
-                />
-                <input 
-                    type="submit" 
-                    class="default" 
-                    value="Отправить"
-                />
+                <textarea
+                class="message-textarea"
+                placeholder="Начните писать.."
+                ></textarea>
+                <input id="ticket-assign" type="submit" class="default" value="Отправить" />
             </form>
         </div>
     </div>
