@@ -7,11 +7,11 @@ from . import models, serializers
 
 
 class BaseChatConsumer(AsyncJsonWebsocketConsumer):
-    unassigned_tickets_group = 'unassigned_tickets'
+    unassigned_tickets_group_name = 'unassigned_tickets'
 
     @staticmethod
-    def ticket_messages_group(ticket_id: int) -> str:
-        return f'ticket_{ticket_id}_messages'
+    def get_ticket_group_name(ticket_id: int) -> str:
+        return f'ticket_{ticket_id}'
 
     @classmethod
     def get_channel_layer(cls) -> BaseChannelLayer:
@@ -28,14 +28,14 @@ class BaseChatConsumer(AsyncJsonWebsocketConsumer):
         await self._channel_layer.group_discard(group_name, self.channel_name)
 
     async def add_ticket_to_group(self, ticket_id):
-        group_name = self.ticket_messages_group(ticket_id)
+        group_name = self.get_ticket_group_name(ticket_id)
         await self.add_to_group(group_name)
-        self.ticket_messages_groups_set.add(group_name)
+        self.get_ticket_group_names_set.add(group_name)
 
     async def remove_ticket_from_group(self, ticket_id):
-        group_name = self.ticket_messages_group(ticket_id)
+        group_name = self.get_ticket_group_name(ticket_id)
         await self.remove_from_group(group_name)
-        self.ticket_messages_groups_set.discard(group_name)
+        self.get_ticket_group_names_set.discard(group_name)
 
     @database_sync_to_async
     def get_ticket_ids(self):
@@ -46,19 +46,19 @@ class BaseChatConsumer(AsyncJsonWebsocketConsumer):
         )
 
     async def connect(self):
-        self.ticket_messages_groups_set = set()
+        self.get_ticket_group_names_set = set()
         try:
             self.manager = await User.objects.aget(pk=self.scope['user'].pk)
         except (User.DoesNotExist, AttributeError, KeyError):
             return await self.close()
-        await self.add_to_group(self.unassigned_tickets_group)
+        await self.add_to_group(self.unassigned_tickets_group_name)
         for ticket_id in await self.get_ticket_ids():
             await self.add_ticket_to_group(ticket_id)
         await self.accept()
 
     async def disconnect(self, code):  # noqa: ARG002
-        await self.remove_from_group(self.unassigned_tickets_group)
-        for ticket_id in self.ticket_messages_groups_set:
+        await self.remove_from_group(self.unassigned_tickets_group_name)
+        for ticket_id in self.get_ticket_group_names_set:
             await self.remove_ticket_from_group(ticket_id)
 
 
@@ -85,16 +85,8 @@ class ChatConsumerSender(ChatConsumerSerializerMixin, BaseChatConsumer):
     async def ticket_assigned(self, event: dict):
         await self.send_json(event)
 
-    async def ticket_message_viewed(self, event: dict):
-        event['message'] = await self.serialize_message(event['message'])
-        await self.send_json(event)
-
     async def ticket_message_new(self, event: dict):
         event['message'] = await self.serialize_message(event['message'])
-        await self.send_json(event)
-
-    async def ticket_message_list(self, event: dict):
-        event['messages'] = await self.serialize_messages(event['ticket_id'])
         await self.send_json(event)
 
 
@@ -110,31 +102,11 @@ class ChatConsumerReceiver(BaseChatConsumer):
         await ticket.asave()
         await self.add_ticket_to_group(ticket.id)
         return (
-            self.unassigned_tickets_group,
+            self.unassigned_tickets_group_name,
             {
                 'type': 'ticket.assigned',
                 'id': ticket.id,
                 'support_manager': self.manager.pk,
-            },
-        )
-
-    async def _receive_ticket_message_viewed(
-        self,
-        *,
-        ticket_id: int,
-        message_id: int,
-    ):
-        message = await models.Message.objects.aget(
-            ticket__id=ticket_id,
-            id=message_id,
-        )
-        message.viewed = True
-        await message.asave()
-        return (
-            self.ticket_messages_group(ticket_id),
-            {
-                'type': 'ticket.message.viewed',
-                'message': message,
             },
         )
 
@@ -152,19 +124,10 @@ class ChatConsumerReceiver(BaseChatConsumer):
             viewed=True,
         )
         return (
-            self.ticket_messages_group(ticket.id),
+            self.get_ticket_group_name(ticket.id),
             {
                 'type': 'ticket.message.new',
                 'message': message,
-            },
-        )
-
-    async def _receive_ticket_message_list(self, *, ticket_id: int):
-        return (
-            self.ticket_messages_group(ticket_id),
-            {
-                'type': 'ticket.message.list',
-                'ticket_id': ticket_id,
             },
         )
 
@@ -178,9 +141,7 @@ class ChatConsumer(ChatConsumerReceiver, ChatConsumerSender):
     ) -> tuple[str, dict] | tuple[None, None]:
         handler = {
             'ticket.assign': self._receive_ticket_assign,
-            'ticket.message.viewed': self._receive_ticket_message_viewed,
             'ticket.message.new': self._receive_ticket_message_new,
-            'ticket.message.list': self._receive_ticket_message_list,
         }.get(
             content.pop('type', None),
             self.none_handler,

@@ -6,7 +6,7 @@ from asgiref.sync import async_to_sync
 def post_save_ticket(sender, instance: models.Ticket, created: bool, **kwargs):  # noqa: ARG001
     if created:
         async_to_sync(ChatConsumer.get_channel_layer().group_send)(
-            ChatConsumer.unassigned_tickets_group,
+            ChatConsumer.unassigned_tickets_group_name,
             {
                 'type': 'ticket.created',
                 'ticket': instance,
@@ -22,7 +22,7 @@ def post_save_message(
 ):
     if created:
         async_to_sync(ChatConsumer.get_channel_layer().group_send)(
-            ChatConsumer.ticket_messages_group(instance.ticket.id),
+            ChatConsumer.get_ticket_group_name(instance.ticket.id),
             {
                 'type': 'ticket.message.new',
                 'message': instance,

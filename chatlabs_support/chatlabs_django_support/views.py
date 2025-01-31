@@ -27,7 +27,10 @@ class Support(LoginRequiredMixin, TemplateView):
 
 
 class TicketList(ListCreateAPIView):
-    queryset = models.Ticket.objects.all()
+    queryset = models.Ticket.objects.all().order_by(
+        'resolved',
+        'created_at',
+    )
     serializer_class = serializers.Ticket
     filter_backends = [
         DjangoFilterBackend,

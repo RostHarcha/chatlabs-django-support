@@ -141,7 +141,85 @@ urlpatterns = [
 ]
 ```
 
+### ChatLabs Django Support - API
+
+---
+
+GET "/support/tickets/"
+
+Получить список тикетов
+
+**Query params**:
+- `user_id` (number) - ID Пользователя (создателя тикета)
+- `resolved` (bool) - `true` - тикет решен, `false` - тикет не решен
+- `manager` (number) - ID менеджера, на которого назначены тикеты
+- `manager__isnull` (bool) - `true` - менеджер не назначен, `false` - менеджер назначен
+
+**Response**:
+```json
+[
+    {
+        "id": 2,
+        "user": {
+            "telegram_id": 123
+        },
+        "support_manager": null,
+        "created_at": "2025-01-31T12:24:25.716425Z",
+        "title": "I've founded some bug",
+        "resolved": false
+    }
+]
+```
+
+---
+
+GET "/support/tickets/`ticket_id`/"
+
+Получить тикет
+
+**Response**:
+```json
+{
+    "id": 1,
+    "user": {
+        "telegram_id": 123
+    },
+    "support_manager": {
+        "id": 1,
+        "first_name": "",
+        "last_name": ""
+    } || null,
+    "created_at": "2025-01-22T12:11:40.273325Z",
+    "title": "I've founded some bug",
+    "resolved": true
+}
+```
+
+---
+
+GET "/support/tickets/`ticket_id`/messages/"
+
+Получить список сообщений в тикете
+
+**Response**:
+```json
+[
+    {
+        "id": 3,
+        "created_at": "2025-01-31T12:18:03.929086Z",
+        "sender": "user" || "supp",
+        "text": "some text of message",
+        "viewed": false,
+        "ticket": 1
+    }
+]
+```
+
+---
+
 ### ChatLabs Django Support - Отправляемые сообщения
+
+---
 
 Принять тикет в работу:
 ```json
@@ -151,14 +229,7 @@ urlpatterns = [
 }
 ```
 
-Сообщение просмотрено:
-```json
-{
-    "type": "ticket.message.viewed",
-    "ticket_id": 16, // ID тикета
-    "message_id": 28 // ID сообщения
-}
-```
+---
 
 Отправить сообщение:
 ```json
@@ -169,15 +240,11 @@ urlpatterns = [
 }
 ```
 
-Тикет открыт (запросить список сообщений):
-```json
-{
-    "type": "ticket.message.list",
-    "ticket_id": 16, // ID тикета
-}
-```
+---
 
 ### ChatLabs Django Support - Получаемые сообщения
+
+---
 
 Создан новый тикет:
 ```json
@@ -195,6 +262,8 @@ urlpatterns = [
 }
 ```
 
+---
+
 Тикет назначен:
 ```json
 {
@@ -204,20 +273,7 @@ urlpatterns = [
 }
 ```
 
-Сообщение просмотрено:
-```json
-{
-    "type": "ticket.message.viewed",
-    "message": {
-        "id": 29, // ID сообщения
-        "created_at": "2024-12-29T15:21:18.498325Z", // дата создания
-        "sender": "user", // отправитель, "user" - пользователь, "supp" - менеджер
-        "text": "jhklhjbkbklb", // текст сообщения
-        "viewed": true, // сообщение просмотрено
-        "ticket": 16 // ID тикета
-    }
-}
-```
+---
 
 Новое сообщение:
 ```json
@@ -234,28 +290,4 @@ urlpatterns = [
 }
 ```
 
-Список сообщений в тикете:
-```json
-{
-    "type": "ticket.message.list",
-    "ticket_id": 16, // ID тикета
-    "messages": [
-        {
-            "id": 31, // ID сообщения
-            "created_at": "2024-12-29T16:08:04.267002Z", // дата создания
-            "sender": "supp", // отправитель, "user" - пользователь, "supp" - менеджер
-            "text": "some_text", // текст сообщения
-            "viewed": true, // сообщение просмотрено
-            "ticket": 16 // ID тикета
-        },
-        {
-            "id": 30, // ID сообщения
-            "created_at": "2024-12-29T15:22:01.299698Z", // дата создания
-            "sender": "user", // отправитель, "user" - пользователь, "supp" - менеджер
-            "text": "jhklhjbkbklb", // текст сообщения
-            "viewed": false, // сообщение просмотрено
-            "ticket": 16 // ID тикета
-        },
-    ]
-}
-```
+---
