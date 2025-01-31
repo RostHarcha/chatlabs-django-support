@@ -1,6 +1,7 @@
-function updateTicketAssignment(assignmentData) {
-    const ticketElement = document.querySelector(`[data-ticket-id="${assignmentData.id}"]`);
-    if (ticketElement) {
-        ticketElement.querySelector(".support-manager").textContent = `Менеджер: ${assignmentData.support_manager}`;
+import { state } from "../state.js";
+
+export function updateTicketAssignment(assignmentData) {
+    if(assignmentData.id == state.getCurrentChatId()) {
+        document.querySelector("#ticket-assign").disabled = true;
     }
 }

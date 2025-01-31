@@ -12,6 +12,10 @@
     <div class="sidebar">
         <!-- Список тикетов -->
         <h2>Чаты</h2>
+        <div>
+            <input id="btn-set-unassigned" type="button" class="default" value="Не назченные" />
+            <input id="btn-set-my" type="button" class="default" value="Мои" />
+        </div>
         <div class="ticket-list">
         </div>
         {% comment %} {% for ticket in unassigned_tickets %}
@@ -27,24 +31,12 @@
         <!-- Заголовок чата -->
         <div class="chat-header">
             <h4 id="ticket-title">have a new</h4>
-            <input id="ticket-assign" type="submit" class="default" value="Принять в работу" />
+            <input id="ticket-assign" type="button" class="default" value="Принять в работу" />
         </div>
 
         <!-- Окно сообщений -->
         <div class="chat-window" id="chat-window">
             <!-- Пример сообщения пользователя -->
-            <div class="chat-message user-message">
-                <strong>Пользователь:</strong>
-                <p>Здравствуйте, у меня проблема с доступом. Здравствуйте, у меня проблема с доступом. Здравствуйте, у меня проблема с доступом. Здравствуйте, у меня проблема с доступом. Здравствуйте, у меня проблема с доступом. Здравствуйте, у меня проблема с доступом.</p>
-                <small>15:30</small>
-            </div>
-
-            <!-- Пример сообщения менеджера -->
-            <div class="chat-message support-message">
-                <strong>Менеджер:</strong>
-                <p>Добрый день! Уточните, какой доступ? Добрый день! Уточните, какой доступ? Добрый день! Уточните, какой доступ? Добрый день! Уточните, какой доступ?Добрый день! Уточните, какой доступ?</p>
-                <small>15:32</small>
-            </div>
         </div>
 
         <!-- Форма отправки сообщения -->
@@ -54,7 +46,7 @@
                 class="message-textarea"
                 placeholder="Начните писать.."
                 ></textarea>
-                <input id="ticket-assign" type="submit" class="default" value="Отправить" />
+                <input id="send-message" type="button" class="default" value="Отправить" />
             </form>
         </div>
     </div>
