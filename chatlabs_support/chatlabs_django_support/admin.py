@@ -15,6 +15,7 @@ class TicketAdmin(admin.ModelAdmin):
         'created_at',
         'title',
         'support_manager',
+        'resolved',
     ]
     inlines = [
         MessageInline

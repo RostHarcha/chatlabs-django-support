@@ -6,7 +6,13 @@ from . import models
 class Ticket(filters.FilterSet):
     user_id = filters.NumberFilter(
         field_name='user',
-        lookup_expr='exact',
+    )
+    manager = filters.NumberFilter(
+        field_name='support_manager',
+    )
+    manager__isnull = filters.BooleanFilter(
+        field_name='support_manager',
+        lookup_expr='isnull',
     )
 
     class Meta:
@@ -14,4 +20,5 @@ class Ticket(filters.FilterSet):
         fields = [
             'user_id',
             'resolved',
+            'manager',
         ]
