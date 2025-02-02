@@ -4,11 +4,13 @@
 {% block extrastyle %}
 {{ block.super }}
 <script type="module" src="{% static 'support/js/index.js' %}" defer></script>
+<script type="module" src="{% static 'support/js/const/ELEMENTS.js' %}" defer></script>
 <link rel="stylesheet" href="{% static 'support/css/style.css' %}" defer>
 {% endblock %}
 
 {% block content %}
 <div class="container">
+    <p id="manager-id" class="invisible">{{ user.pk }}</p>
     <div class="sidebar">
         <!-- Список тикетов -->
         <h2>Чаты</h2>

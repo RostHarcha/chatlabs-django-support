@@ -1,6 +1,7 @@
+import { chatWindowElement } from "../const/ELEMENTS";
+
 function appendMessageToChat(messageData) {
-    const chatWindow = document.getElementById("chat-window");
     const messageElement = createMessage(messageData);
-    chatWindow.appendChild(messageElement);
-    chatWindow.scrollTop = chatWindow.scrollHeight; // Прокрутка вниз
+    chatWindowElement.appendChild(messageElement);
+    chatWindowElement.scrollTop = chatWindowElement.scrollHeight; // Прокрутка вниз
 }

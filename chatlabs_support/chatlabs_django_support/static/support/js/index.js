@@ -1,7 +1,9 @@
 import { API_URL } from "./const/API_URL.js";
+import { btnSetMyTicketsElement, btnSetUnassignedTicketsElement, managerIdElement, messageTextAreaElement, sendMessageElement, ticketAssignElement } from "./const/ELEMENTS.js";
 import { SOCKET_URL } from "./const/SOCKET_URL.js";
 import { TICKETS_EVENTS } from "./const/TICKETS_EVENTS.js";
 import { addTicketToList } from "./helpers/addTicketToList.js";
+import { getTickets } from "./scripts/apiController.js";
 import { controller } from "./scripts/socketController.js";
 
 // sockets
@@ -11,10 +13,7 @@ ws.onclose = () => {
 }
 ws.onopen = () => {
     console.log(`Соединение с ${SOCKET_URL} установлено.`);
-
-    fetch(API_URL+TICKETS_EVENTS.SEND.GET_TICKETS)
-    .then(response => response.json()).then(data => data.forEach(item => addTicketToList(item)))
-    .catch(error => console.error(error));
+    getTickets()
 }
 
 ws.onmessage = (event) => {
@@ -24,21 +23,22 @@ ws.onmessage = (event) => {
 // sockets end
 
 
-
-
 // html events
-const sendMessageElement = document.querySelector("#send-message");
-const messageTextArea = document.querySelector(".message-textarea");
-const ticketAssignElement = document.querySelector("#ticket-assign");
-
-
 ticketAssignElement.addEventListener("click", () => {
     controller({type: TICKETS_EVENTS.SEND.TICKET_ASSIGN}, ws);
 })
 
 sendMessageElement.addEventListener("click", () => {
-    controller({type: TICKETS_EVENTS.SEND.TICKET_MESSAGE_NEW, text: messageTextArea.value}, ws);
-    messageTextArea.value = "";
-    messageTextArea.textContent = "";
+    controller({type: TICKETS_EVENTS.SEND.TICKET_MESSAGE_NEW, text: messageTextAreaElement.value}, ws);
+    messageTextAreaElement.value = "";
+    messageTextAreaElement.textContent = "";
+})
+
+btnSetUnassignedTicketsElement.addEventListener("click", () => {
+    getTickets();
+})
+
+btnSetMyTicketsElement.addEventListener("click", () => {
+    getTickets(managerIdElement.textContent);
 })
 // html events end

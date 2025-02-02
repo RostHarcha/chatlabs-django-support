@@ -1,16 +1,20 @@
 import { createElement } from "./createElement.js";
 import { state } from "../state.js";
-import { renderMessageList } from "./renderMessageList.js";
 import { getTicketMessages } from "../scripts/apiController.js";
+import { btnSetMyTicketsElement, btnSetUnassignedTicketsElement, managerIdElement, ticketAssignElement, ticketTitleElement } from "../const/ELEMENTS.js";
 
 function handleClick(ticket) {
     state.setCurrentChatId(ticket.id);
     getTicketMessages(ticket.id);
-    document.querySelector("#ticket-title").textContent = ticket.title;
-    document.querySelector("#ticket-assign").disabled = Boolean(ticket.support_manager);
+    ticketTitleElement.textContent = ticket.title;
+    ticketAssignElement.disabled = Boolean(ticket.support_manager);
+    ticketAssignElement.value = ticketAssignElement.disabled ? "Принят в работу" : "Принять в работу";
 }
 
 export function addTicketToList(ticketData) {
+    if(ticketData.support_manager && ticketData.support_manager?.id != managerIdElement.textContent) return;
+    if(!ticketData.support_manager && !btnSetUnassignedTicketsElement.disabled) return;
+    if(ticketData.support_manager && !btnSetMyTicketsElement.disabled) return;
     const ticketList = document.querySelector(".ticket-list");
     const ticketElement = createElement("div", {
         classes: ["ticket"],

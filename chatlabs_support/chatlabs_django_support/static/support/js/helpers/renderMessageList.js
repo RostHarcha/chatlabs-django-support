@@ -1,13 +1,13 @@
+import { chatWindowElement } from "../const/ELEMENTS.js";
 import { createMessage } from "./createMessage.js";
 export function renderMessageList(messages) {
-    const chatWindow = document.getElementById("chat-window");
-    chatWindow.innerHTML = ""; // Очистка чата
+    chatWindowElement.innerHTML = ""; // Очистка чата
     console.log(messages)
 
     messages.forEach((message) => {
         const messageElement = createMessage(message);
-        chatWindow.appendChild(messageElement);
+        chatWindowElement.appendChild(messageElement);
     });
 
-    chatWindow.scrollTop = chatWindow.scrollHeight;
+    chatWindowElement.scrollTop = chatWindowElement.scrollHeight;
 }
