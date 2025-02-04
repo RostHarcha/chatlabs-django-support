@@ -117,19 +117,13 @@ class ChatConsumerReceiver(BaseChatConsumer):
             )
         except models.Ticket.DoesNotExist:
             return None, None
-        message = await models.Message.objects.acreate(
+        await models.Message.objects.acreate(
             ticket=ticket,
             sender=models.Message.Sender.SUPPORT_MANAGER,
             text=text,
             viewed=True,
         )
-        return (
-            self.get_ticket_group_name(ticket.id),
-            {
-                'type': 'ticket.message.new',
-                'message': message,
-            },
-        )
+        return None, None
 
     async def none_handler(self, *_, **__):
         return None, None
