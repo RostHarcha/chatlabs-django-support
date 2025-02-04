@@ -1,42 +1,60 @@
+{% extends 'admin/base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <title>Поддержка пользователей</title>
-</head>
-<body>
-    <p>{{ request.manager }}</p>
-    {{ my_tickets }}
-    {{ unassigned_tickets }}
-    <div id="chat-log"></div>
-    <input placeholder="Введите сообщение..." id="chat-message-input" type="text" size="100">
-    <button id="chat-message-submit">Отправить</button>
 
-    <script>
-        const roomName = "{{ room_name }}";
-        const chatSocket = new WebSocket(
-            'ws://' + window.location.host +
-            '/ws/support/manager/'
-        );
+{% block extrastyle %}
+{{ block.super }}
+<script type="module" src="{% static 'support/js/index.js' %}" defer></script>
+<script type="module" src="{% static 'support/js/const/ELEMENTS.js' %}" defer></script>
+<link rel="stylesheet" href="{% static 'support/css/style.css' %}" defer>
+{% endblock %}
 
-        chatSocket.onmessage = function(e) {
-            const data = JSON.parse(e.data);
-            const message = data['message'];
-            document.querySelector('#chat-log').innerHTML += (message + '<br>'); // знаете, почему именно <br>?
-        };
+{% block content %}
+<div class="container">
+    <p id="manager-id" class="invisible">{{ user.pk }}</p>
+    <div class="sidebar">
+        <!-- Список тикетов -->
+        <h2>Чаты</h2>
+        <div>
+            <input id="btn-set-unassigned" type="button" class="default" value="Не назченные" />
+            <input id="btn-set-my" type="button" class="default" value="Мои" />
+        </div>
+        <div class="ticket-list">
+        </div>
+        {% comment %} {% for ticket in unassigned_tickets %}
+        <div class="ticket">
+            <h1>{{ticket.title}}</h1>
+            <small>Создан: {{ticket.created_at}}</small>
+            <div>Менеджер: {{ticket.support_manager}}</div>
+        </div>
+        {% endfor %} {% endcomment %}
+    </div>
 
-        chatSocket.onclose = function(e) {
-            console.error('Chat socket closed unexpectedly');
-        };
+    <div class="chat">
+        <!-- Заголовок чата -->
+        <div class="chat-header">
+            <h4 id="ticket-title">Выберите чат</h4>
+            <input id="ticket-assign" type="button" class="default" value="Принять в работу" />
+        </div>
 
-        document.querySelector('#chat-message-submit').onclick = function(e) {
-            const messageInputDom = document.querySelector('#chat-message-input');
-            const message = messageInputDom.value;
-            chatSocket.send(JSON.stringify({
-                'message': message
-            }));
-            messageInputDom.value = '';
-        };
-    </script>
-</body>
-</html>
+        <!-- Окно сообщений -->
+        <div class="chat-window" id="chat-window">
+            <!-- Пример сообщения пользователя -->
+        </div>
+
+        <!-- Форма отправки сообщения -->
+        <div class="chat-footer">
+            <form id="message-form">
+                <textarea
+                class="message-textarea"
+                placeholder="Начните писать.."
+                ></textarea>
+                <input id="send-message" type="button" class="default" value="Отправить" />
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    {% comment %} const tickets = JSON.parse({{unassigned_tickets|safe}}) {% endcomment %}
+    {% comment %} console.log(tickets) {% endcomment %}
+</script>
+{% endblock content %}
