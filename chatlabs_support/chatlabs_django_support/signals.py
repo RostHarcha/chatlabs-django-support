@@ -1,17 +1,20 @@
 from . import models
-from .consumers import ChatConsumer
+from .consumers import ChatConsumer, ChatConsumerMessages
 from asgiref.sync import async_to_sync
 
 
 def post_save_ticket(sender, instance: models.Ticket, created: bool, **kwargs):  # noqa: ARG001
     if created:
         async_to_sync(ChatConsumer.get_channel_layer().group_send)(
-            ChatConsumer.unassigned_tickets_group_name,
-            {
-                'type': 'ticket.created',
-                'ticket': instance,
-            },
+            *ChatConsumerMessages.ticket_created(instance)
         )
+        if instance.support_manager:
+            async_to_sync(ChatConsumer.get_channel_layer().group_send)(
+                *ChatConsumerMessages.ticket_assigned(
+                    instance,
+                    instance.support_manager,
+                )
+            )
 
 
 def post_save_message(
@@ -22,9 +25,5 @@ def post_save_message(
 ):
     if created:
         async_to_sync(ChatConsumer.get_channel_layer().group_send)(
-            ChatConsumer.get_ticket_group_name(instance.ticket.id),
-            {
-                'type': 'ticket.message.new',
-                'message': instance,
-            }
+            *ChatConsumerMessages.ticket_message_new(instance)
         )

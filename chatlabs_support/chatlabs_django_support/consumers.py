@@ -83,11 +83,46 @@ class ChatConsumerSender(ChatConsumerSerializerMixin, BaseChatConsumer):
         await self.send_json(event)
 
     async def ticket_assigned(self, event: dict):
+        if self.manager.pk == event['support_manager']:
+            await self.add_ticket_to_group(event['id'])
         await self.send_json(event)
 
     async def ticket_message_new(self, event: dict):
         event['message'] = await self.serialize_message(event['message'])
         await self.send_json(event)
+
+
+class ChatConsumerMessages:
+    @staticmethod
+    def ticket_assigned(ticket: models.Ticket, manager: User):
+        return (
+            BaseChatConsumer.unassigned_tickets_group_name,
+            {
+                'type': 'ticket.assigned',
+                'id': ticket.id,
+                'support_manager': manager.pk,
+            },
+        )
+
+    @staticmethod
+    def ticket_created(ticket: models.Ticket):
+        return (
+            BaseChatConsumer.unassigned_tickets_group_name,
+            {
+                'type': 'ticket.created',
+                'ticket': ticket,
+            },
+        )
+
+    @staticmethod
+    def ticket_message_new(message: models.Message):
+        return (
+            ChatConsumer.get_ticket_group_name(message.ticket.id),
+            {
+                'type': 'ticket.message.new',
+                'message': message,
+            },
+        )
 
 
 class ChatConsumerReceiver(BaseChatConsumer):
@@ -100,15 +135,7 @@ class ChatConsumerReceiver(BaseChatConsumer):
             return None, None
         ticket.support_manager = self.manager
         await ticket.asave()
-        await self.add_ticket_to_group(ticket.id)
-        return (
-            self.unassigned_tickets_group_name,
-            {
-                'type': 'ticket.assigned',
-                'id': ticket.id,
-                'support_manager': self.manager.pk,
-            },
-        )
+        return ChatConsumerMessages.ticket_assigned(ticket, self.manager)
 
     async def _receive_ticket_message_new(self, *, ticket_id: int, text: str):
         try:

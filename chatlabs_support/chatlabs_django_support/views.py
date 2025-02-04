@@ -9,21 +9,7 @@ from . import filters, models, serializers
 
 class Support(LoginRequiredMixin, TemplateView):
     template_name = 'support/support_manager.html'
-
-    def get_context_data(self, **kwargs):
-        kwargs['my_tickets'] = serializers.Ticket(
-            models.Ticket.objects.filter(
-                support_manager=self.request.user,
-            ),
-            many=True,
-        ).data
-        kwargs['unassigned_tickets'] = serializers.Ticket(
-            models.Ticket.objects.filter(
-                support_manager__isnull=True,
-            ),
-            many=True,
-        ).data
-        return super().get_context_data(**kwargs)
+    login_url = '/admin/login/'
 
 
 class TicketList(ListCreateAPIView):
