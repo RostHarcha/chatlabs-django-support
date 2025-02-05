@@ -1,14 +1,3 @@
-from importlib.util import find_spec
-
-from ..exceptions import ModuleDependenciesError
-
-if not find_spec('django'):
-    raise ModuleDependenciesError(
-        current_module='chatlabs_django_support',
-        required_module='chatlabs-support[chatlabs_django_support]',
-    )
-
-
 def get_asgi_application():
     import django.core.asgi
     from channels.auth import AuthMiddlewareStack
@@ -25,3 +14,5 @@ def get_asgi_application():
 __all__ = [
     'get_asgi_application',
 ]
+
+__version__ = '0.1.0'

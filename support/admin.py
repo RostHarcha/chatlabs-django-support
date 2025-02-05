@@ -18,5 +18,5 @@ class TicketAdmin(admin.ModelAdmin):
         'resolved',
     ]
     inlines = [
-        MessageInline
+        MessageInline,
     ]

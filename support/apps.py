@@ -4,7 +4,7 @@ from django.db.models.signals import post_save
 
 class SupportConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'chatlabs_support.chatlabs_django_support'
+    name = 'support'
     verbose_name = 'Поддержка'
 
     def ready(self) -> None:

@@ -1,22 +1,18 @@
-from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 
 
-class TelegramUser(models.Model):
-    telegram_id = models.BigIntegerField(
-        primary_key=True,
-        unique=True,
+def get_telegram_user_model():
+    """
+    Возвращает модель пользователя Telegram, указанную в
+    `settings.SUPPORT_TELEGRAM_USER_MODEL`.
+    """
+    from django.apps import apps
+
+    return apps.get_model(
+        settings.SUPPORT_TELEGRAM_USER_MODEL, require_ready=False
     )
-
-    class Meta:
-        swappable = 'SUPPORT_TELEGRAM_USER_MODEL'
-        abstract = True
-
-    @classmethod
-    def get_model(cls) -> type['TelegramUser']:
-        return apps.get_model(settings.SUPPORT_TELEGRAM_USER_MODEL)
 
 
 class Ticket(models.Model):
@@ -29,7 +25,7 @@ class Ticket(models.Model):
         verbose_name='Создан в',
         auto_now_add=True,
     )
-    user: models.ForeignKey[TelegramUser] = models.ForeignKey(
+    user = models.ForeignKey(
         verbose_name='Пользователь',
         to=settings.SUPPORT_TELEGRAM_USER_MODEL,
         on_delete=models.CASCADE,
@@ -107,7 +103,7 @@ class Message(models.Model):
         return f'{sender}: {text}'
 
     @property
-    def sender_instance(self) -> TelegramUser | User | None:
+    def sender_instance(self):
         match self.sender:
             case self.Sender.USER:
                 return self.ticket.user

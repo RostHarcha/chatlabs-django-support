@@ -25,7 +25,7 @@ class SupportManager(serializers.ModelSerializer):
 
 class TelegramUser(serializers.ModelSerializer):
     class Meta:
-        model = models.TelegramUser.get_model()
+        model = models.get_telegram_user_model()
         read_only_fields = [
             'telegram_id',
         ]
@@ -39,7 +39,7 @@ class Ticket(serializers.ModelSerializer):
         read_only=True,
     )
     user_id = serializers.PrimaryKeyRelatedField(
-        queryset=models.TelegramUser.get_model().objects.all(),
+        queryset=models.get_telegram_user_model().objects.all(),
         write_only=True,
         source='user',
     )
