@@ -1,147 +1,109 @@
-# Закладки
-- [ChatLabs Support](#chatlabs-support)
-    - [Aiogram Support](#chatlabs-aiogram-support)
-        - [Установка](#chatlabs-aiogram-support---установка)
-    - [Django Support](#chatlabs-django-support)
-        - [Установка](#chatlabs-django-support---установка)
-        - [Отправляемые сообщения](#chatlabs-django-support---отправляемые-сообщения)
-        - [Получаемые сообщения](#chatlabs-django-support---Получаемые-сообщения)
+# ChatLabs Django Support
 
-# ChatLabs Support
+## Зависимости
 
-## ChatLabs Aiogram Support
+- Python 3.11+
+- [Django](https://pypi.org/project/Django/) 5.0.1
+- [Channels](https://pypi.org/project/channels/) >=4.2.0,<5.0.0
+- [Daphne](https://pypi.org/project/daphne/) >=4.1.2,<5.0.0
+- [Django REST framework](https://pypi.org/project/djangorestframework/) >=3.15.2,<4.0.0
+- [Django-filter](https://pypi.org/project/django-filter/) >=24.3,<25.0
 
-### ChatLabs Aiogram Support - Установка
+## Установка
 
-`pip install chatlabs-support[chatlabs_aiogram_support]`
-
-Необходимые переменные окружения:
-- `BACKEND_SCHEMA`
-- `BACKEND_HOST`
-- `BACKEND_PORT`
-
-Добавление роутера поддержки в диспетчер:
-```python
-from aiogram import Dispatcher
-
-from chatlabs_support import chatlabs_aiogram_support as support
-
-dp = Dispatcher()
-
-dp.include_router(support.dialog_router)
+Установите пакет через `pip`:
+```bash
+pip install chatlabs-django-support
 ```
 
-Добавление кнопки поддержки в окно:
-```python
-from aiogram_dialog import Dialog, Window
-from aiogram_dialog.widgets.kbd import Start
-from aiogram_dialog.widgets.text import Const
+...или через `Poetry`:
+```bash
+poetry add chatlabs-django-support
+```
 
-from chatlabs_support import chatlabs_aiogram_support as support
+## Быстрый старт
 
-Dialog(
-    ...,
-    Window(
+1. Добавьте модель Telegram пользователя в любое ваше приложение:
+    ```python
+    # my_users/models.py
+
+    class MyTelegramUser(models.Model):
+        telegram_id = models.BigIntegerField(
+            primary_key=True,
+            unique=True,
+        )
+    ```
+
+2. Добавьте `daphne`, `channels`, `support` и приложение с вашей моделью Telegram пользователя в `INSTALLED_APPS`:
+    ```python
+    # settings.py
+
+    INSTALLED_APPS = [
+        'daphne',
+        'channels',
         ...,
-        Start(
-            text=Const('Поддержка'),
-            id='support',
-            state=support.main_state,
-        ),
-        ...,
-    ),
-    ...,
-)
-```
+        'my_users',
+        'support',
+    ]
+    ```
 
-Альтернативный вариант:
-```python
-from aiogram_dialog import Dialog, Window
+3. Укажите модель Telegram пользователя в настройках:
+    ```python
+    # settings.py
 
-from chatlabs_support import chatlabs_aiogram_support as support
+    SUPPORT_TELEGRAM_USER_MODEL = 'my_users.MyTelegramUser'
+    ```
 
-Dialog(
-    ...,
-    Window(
-        ...,
-        support.SupportStartButton,
-        ...,
-    ),
-    ...,
-)
-```
+4. Также необходимо настроить слои для `channels`:
+    ```python
+    # settings.py
 
-## ChatLabs Django Support
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels.layers.InMemoryChannelLayer',
+        },
+    }
+    ```
 
-### ChatLabs Django Support - Установка
+5. Настройте ASGI-приложение:
+    ```python
+    # asgi.py
 
-`pip install chatlabs-support[chatlabs_django_support]`
+    import os
 
-Для привязки тикетов необходимо определить модель пользователя
-```python
-# myapp/models.py
+    from support import get_asgi_application
 
-class MyUser(models.Model):
-    telegram_id = models.BigIntegerField(
-        primary_key=True,
-        unique=True,
-    )
-    ...
-```
-Обратите внимание, что наличие в этой модели поля
-telegram_id (PK, Unique) - обязательно
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'example.settings')
 
-```python
-# django_project/settings.py
+    application = get_asgi_application()
+    ```
 
-INSTALLED_APPS = [
-    'daphne',
-    'channels',
-    ...,
-    'myapp',
-    'chatlabs_support.chatlabs_django_support',
-]
+    ```python
+    # settings.py
 
-ASGI_APPLICATION = 'django_project.asgi.application'
+    ASGI_APPLICATION = 'example.asgi.application'
+    ```
 
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',
-    },
-}
+6. Обновите `urls.py`:
+    ```python
+    from django.urls import path, include
 
-SUPPORT_TELEGRAM_USER_MODEL = 'myapp.MyUser'
-```
+    urlpatterns = [
+        ...
+        path('support/', include('support.urls')),
+    ]
+    ```
 
-```python
-# django_project/asgi.py
+7. Создайте и выполните миграции:
+    ```bash
+    python manage.py makemigrations
+    ```
 
-import os
+    ```bash
+    python manage.py migrate
+    ```
 
-from channels.auth import AuthMiddlewareStack
-from channels.routing import ProtocolTypeRouter, URLRouter
-from django.core.asgi import get_asgi_application
-
-from chatlabs_support.chatlabs_django_support.routing import ws_urlpatterns
-
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'example_project.settings')
-
-application = ProtocolTypeRouter({
-    'http': get_asgi_application(),
-    'websocket': AuthMiddlewareStack(URLRouter(ws_urlpatterns)),
-})
-```
-
-```python
-# django_project/urls.py
-
-urlpatterns = [
-    ...,
-    path('support/', include('chatlabs_support.chatlabs_django_support.urls')),
-]
-```
-
-### ChatLabs Django Support - API
+### API
 
 ---
 
@@ -217,7 +179,7 @@ GET "/support/tickets/`ticket_id`/messages/"
 
 ---
 
-### ChatLabs Django Support - Отправляемые сообщения
+### WebSocket API - Отправляемые сообщения
 
 ---
 
@@ -242,7 +204,7 @@ GET "/support/tickets/`ticket_id`/messages/"
 
 ---
 
-### ChatLabs Django Support - Получаемые сообщения
+### WebSocket API - Получаемые сообщения
 
 ---
 
