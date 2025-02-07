@@ -14,15 +14,19 @@ import { createElement } from "./createElement.js";
 export function createMessage(messageObj) {
     const { sender, text, created_at } = messageObj;
 
-    // Определяем классы в зависимости от отправителя
     const messageClasses = ["mb-[15px]", "p-[10px]", "rounded-lg", "w-fit"];
     if (sender === "user") {
-        messageClasses.push("bg-[#111827]");
-        messageClasses.push("mr-auto");
+        messageClasses.push("bg-[#111827]", "mr-auto");
     } else if (sender === "supp") {
-        messageClasses.push("bg-purple-600");
-        messageClasses.push("ml-auto");
+        messageClasses.push("bg-purple-600", "ml-auto");
     }
+
+    const textElements = text.split("\n").map((line) =>
+        createElement("span", {
+            textContent: line,
+            classes: ["block"],
+        })
+    );
 
     // Создаём элемент сообщения
     return createElement("div", {
@@ -33,7 +37,7 @@ export function createMessage(messageObj) {
                 classes: ["text-white/50"],
             }),
             createElement("p", {
-                textContent: text,
+                children: textElements,
                 classes: ["text-white"],
             }),
             createElement("small", {

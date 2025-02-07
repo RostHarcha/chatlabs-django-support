@@ -15,6 +15,9 @@ function handleClick(ticket) {
     ticketTitleElement.textContent = ticket.title;
     ticketAssignElement.disabled = Boolean(ticket.support_manager);
     ticketAssignElement.value = ticketAssignElement.disabled ? "В работе" : "Принять в работу";
+    ticketAssignElement.disabled
+        ? ticketAssignElement.classList.add("!bg-gray-600")
+        : ticketAssignElement.classList.remove("!bg-gray-600");
 }
 
 export function addTicketToList(ticketData) {
