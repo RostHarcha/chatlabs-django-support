@@ -19,21 +19,28 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Extract Python version from pyproject.toml
-        id: python-version
+      - name: Ensure valid tag
         run: |
-          python_version=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['tool']['poetry']['dependencies']['python'].strip('^~<>= '))")
-          echo "python-version=${python_version}" >> $GITHUB_ENV
+          if [[ ! "${{ github.ref }}" =~ refs/tags/v.* ]]; then
+            echo "Error: This workflow should be triggered by a version tag (v*)."
+            exit 1
+          fi
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ env.python-version }}
+          python-version: "3.x"
 
       - name: Install Poetry
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
           echo 'export PATH="$HOME/.local/bin:$PATH"' >> $GITHUB_ENV
+
+      - name: Extract Python version from pyproject.toml
+        id: python-version
+        run: |
+          python_version=$(poetry run python -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
+          echo "python-version=${python_version}" >> $GITHUB_ENV
 
       - name: Install dependencies
         run: poetry install --no-root
@@ -41,10 +48,14 @@ jobs:
       - name: Build package
         run: poetry build
 
-      - name: Publish to PyPI
+      - name: Configure Poetry for PyPI
+        run: poetry config pypi-token.pypi "$POETRY_PASSWORD"
         env:
           POETRY_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
-        run: poetry publish --username __token__ --password "$POETRY_PASSWORD"
+
+      - name: Publish to PyPI
+        run: poetry publish
+        continue-on-error: true
 
       - name: Create GitHub Release
         uses: actions/create-release@v1
@@ -64,5 +75,3 @@ jobs:
           file: dist/*
           file_glob: true
           release_name: ${{ github.ref_name }}
-        env:
-          python-version: ${{ env.python-version }}
