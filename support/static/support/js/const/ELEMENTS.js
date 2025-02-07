@@ -1,4 +1,4 @@
-export const chatWindowElement = document.getElementById("chat-window");
+export const chatWindowElement = document.querySelector(".chat-window");
 export const sendMessageElement = document.querySelector("#send-message");
 export const messageTextAreaElement = document.querySelector(".message-textarea");
 export const ticketAssignElement = document.querySelector("#ticket-assign");
