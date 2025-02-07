@@ -1,4 +1,4 @@
-import {createElement} from "./createElement.js";
+import { createElement } from "./createElement.js";
 
 /**
  * Создаёт DOM-элемент сообщения на основе переданного объекта сообщения.
@@ -14,13 +14,19 @@ import {createElement} from "./createElement.js";
 export function createMessage(messageObj) {
     const { sender, text, created_at } = messageObj;
 
-    // Определяем классы в зависимости от отправителя
-    const messageClasses = ["chat-message"];
+    const messageClasses = ["mb-[15px]", "p-[10px]", "rounded-lg", "w-fit"];
     if (sender === "user") {
-        messageClasses.push("user-message");
+        messageClasses.push("bg-[#111827]", "mr-auto");
     } else if (sender === "supp") {
-        messageClasses.push("support-message");
+        messageClasses.push("bg-purple-600", "ml-auto");
     }
+
+    const textElements = text.split("\n").map((line) =>
+        createElement("span", {
+            textContent: line,
+            classes: ["block"],
+        })
+    );
 
     // Создаём элемент сообщения
     return createElement("div", {
@@ -28,12 +34,15 @@ export function createMessage(messageObj) {
         children: [
             createElement("strong", {
                 textContent: sender === "user" ? "Пользователь" : "Менеджер",
+                classes: ["text-white/50"],
             }),
             createElement("p", {
-                textContent: text,
+                children: textElements,
+                classes: ["text-white"],
             }),
             createElement("small", {
                 textContent: new Date(created_at).toLocaleTimeString(),
+                classes: ["text-white/50"],
             }),
         ],
     });
