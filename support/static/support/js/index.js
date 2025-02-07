@@ -32,7 +32,6 @@ ws.onmessage = (event) => {
 // html events
 ticketAssignElement.addEventListener("click", () => {
     controller({ type: TICKETS_EVENTS.SEND.TICKET_ASSIGN }, ws);
-    btnSetMyTicketsElement.click();
 });
 
 sendMessageElement.addEventListener("click", () => {
