@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "chatlabs-django-support"
-version = "1.0.2"
+version = "1.0.3"
 description = ""
 authors = ["Rostislaww <rostiki.com@mail.ru>"]
 readme = "README.md"
