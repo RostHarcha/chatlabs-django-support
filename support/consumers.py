@@ -1,7 +1,7 @@
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from channels.layers import BaseChannelLayer, get_channel_layer
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 
 from . import models, serializers
 
@@ -46,6 +46,7 @@ class BaseChatConsumer(AsyncJsonWebsocketConsumer):
         )
 
     async def connect(self):
+        User = get_user_model()  # noqa: N806
         self.get_ticket_group_names_set = set()
         try:
             self.manager = await User.objects.aget(pk=self.scope['user'].pk)
@@ -94,7 +95,7 @@ class ChatConsumerSender(ChatConsumerSerializerMixin, BaseChatConsumer):
 
 class ChatConsumerMessages:
     @staticmethod
-    def ticket_assigned(ticket: models.Ticket, manager: User):
+    def ticket_assigned(ticket: models.Ticket, manager):
         return (
             BaseChatConsumer.unassigned_tickets_group_name,
             {

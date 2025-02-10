@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.db import models
 
 
@@ -37,7 +36,7 @@ class Ticket(models.Model):
     )
     support_manager = models.ForeignKey(
         verbose_name='Менеджер поддержки',
-        to=User,
+        to=settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         related_name='tickets',
         null=True,
