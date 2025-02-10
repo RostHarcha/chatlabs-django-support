@@ -3,6 +3,9 @@
 <script type="module" src="{% static 'support/js/index.js' %}" defer></script>
 <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
 <script type="module" src="{% static 'support/js/const/ELEMENTS.js' %}" defer></script>
+<script>
+    window.BASE_PATH = "{{ request.script_name }}";
+</script>
 {% endblock %} {% block content %}
 <div class="flex h-full flex-col md:flex-row p-4 bg-[#111827]">
     <p id="manager-id" class="invisible">{{ user.pk }}</p>
