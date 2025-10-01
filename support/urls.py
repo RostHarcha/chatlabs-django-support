@@ -13,4 +13,5 @@ urlpatterns = [
         views.MessageList.as_view(),
         name='messages',
     ),
+    path('messages/<int:id>/', views.Message.as_view(), name='message'),
 ]
