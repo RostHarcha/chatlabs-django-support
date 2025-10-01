@@ -29,6 +29,19 @@ export function addTicketToList(ticketData) {
     if (!ticketData.support_manager && !btnSetUnassignedTicketsElement.disabled) return;
     if (ticketData.support_manager && !btnSetMyTicketsElement.disabled) return;
     const ticketList = document.querySelector(".ticket-list");
+    const indicator = ticketData.viewed
+        ? null
+        : createElement("span", {
+            classes: [
+                "ml-auto",
+                "w-3",
+                "h-3",
+                "rounded-full",
+                "bg-red-500",
+                "inline-block",
+                "self-center",
+            ],
+        });
     const ticketElement = createElement("div", {
         classes: [
             "w-full",
@@ -52,9 +65,10 @@ export function addTicketToList(ticketData) {
             createElement("h6", {
                 textContent: `Менеджер: ${ticketData.support_manager?.first_name ?? "Не назначен"}`,
             }),
+            indicator,
         ],
     });
     // const ticketId = ticketElement.getAttribute('data-ticket-id');
     ticketElement.addEventListener("click", () => handleClick(ticketData));
-    ticketList.appendChild(ticketElement);
+    ticketList.prepend(ticketElement);
 }

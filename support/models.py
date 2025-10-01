@@ -50,6 +50,7 @@ class Ticket(models.Model):
     class Meta:
         verbose_name = 'Тикет'
         verbose_name_plural = 'Тикеты'
+        ordering = ['-created_at']
 
     def __str__(self):
         return self.title
