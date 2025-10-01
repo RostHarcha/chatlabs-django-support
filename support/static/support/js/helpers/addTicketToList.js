@@ -1,6 +1,6 @@
 import { createElement } from "./createElement.js";
 import { state } from "../state.js";
-import { getTicketMessages } from "../scripts/apiController.js";
+import {getTicketMessages, setTicketViewed} from "../scripts/apiController.js";
 import {
     btnSetMyTicketsElement,
     btnSetUnassignedTicketsElement,
@@ -9,7 +9,31 @@ import {
     ticketTitleElement,
 } from "../const/ELEMENTS.js";
 
-function handleClick(ticket) {
+
+async function handleClick(ticket, ticketEl, indicatorEl) {
+    if (ticket.viewed || ticketEl.dataset.loading === "1") {
+        state.setCurrentChatId(ticket.id);
+        getTicketMessages(ticket.id);
+        ticketTitleElement.textContent = ticket.title;
+        ticketAssignElement.disabled = Boolean(ticket.support_manager);
+        ticketAssignElement.value = ticketAssignElement.disabled ? "В работе" : "Принять в работу";
+        ticketAssignElement.disabled
+            ? ticketAssignElement.classList.add("!bg-gray-600")
+            : ticketAssignElement.classList.remove("!bg-gray-600");
+        return;
+    }
+
+    ticketEl.dataset.loading = "1";
+    try {
+        await setTicketViewed(ticket.id);
+        ticket.viewed = true;
+        indicatorEl?.remove();
+    } catch (e) {
+        console.error(e);
+    } finally {
+        delete ticketEl.dataset.loading;
+    }
+
     state.setCurrentChatId(ticket.id);
     getTicketMessages(ticket.id);
     ticketTitleElement.textContent = ticket.title;
@@ -28,7 +52,9 @@ export function addTicketToList(ticketData) {
         return;
     if (!ticketData.support_manager && !btnSetUnassignedTicketsElement.disabled) return;
     if (ticketData.support_manager && !btnSetMyTicketsElement.disabled) return;
+
     const ticketList = document.querySelector(".ticket-list");
+
     const indicator = ticketData.viewed
         ? null
         : createElement("span", {
@@ -69,6 +95,6 @@ export function addTicketToList(ticketData) {
         ],
     });
     // const ticketId = ticketElement.getAttribute('data-ticket-id');
-    ticketElement.addEventListener("click", () => handleClick(ticketData));
+    ticketElement.addEventListener("click", () => handleClick(ticketData, ticketElement, indicator));
     ticketList.prepend(ticketElement);
 }

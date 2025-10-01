@@ -41,3 +41,22 @@ export function getTicketMessages(ticketId) {
         })
         .catch((error) => console.error(error));
 }
+
+export function getCSRFToken() {
+    return document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("csrftoken="))
+        ?.split("=")[1] ?? "";
+}
+
+export async function setTicketViewed(ticketId) {
+    const res = await fetch(API_URL + TICKETS_EVENTS.SEND.SET_TICKET_VIEWED(ticketId), {
+        method: "PATCH",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json", "X-CSRFToken": getCSRFToken(), "X-Requested-With": "XMLHttpRequest" },
+        body: JSON.stringify({ viewed: true }),
+    });
+    if (!res.ok) throw new Error("Failed to set viewed");
+
+    try { return await res.json(); } catch { return null; }
+}
