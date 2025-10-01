@@ -15,4 +15,4 @@ __all__ = [
     'get_asgi_application',
 ]
 
-__version__ = '1.0.7'
+__version__ = '1.1.1'
