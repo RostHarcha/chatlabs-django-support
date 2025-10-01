@@ -47,10 +47,3 @@ class MessageList(ListCreateAPIView):
         serializer.save(
             ticket=models.Ticket.objects.get(id=self.kwargs['ticket_id']),
         )
-
-
-class Message(RetrieveUpdateAPIView):
-    queryset = models.Message.objects.all()
-    serializer_class = serializers.Message
-    lookup_field = 'id'
-    lookup_url_kwarg = 'id'

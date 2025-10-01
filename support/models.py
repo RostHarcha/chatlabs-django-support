@@ -46,6 +46,10 @@ class Ticket(models.Model):
         verbose_name='Решен',
         default=False,
     )
+    viewed = models.BooleanField(
+        verbose_name='Просмотрено',
+        default=False,
+    )
 
     class Meta:
         verbose_name = 'Тикет'
@@ -85,10 +89,6 @@ class Message(models.Model):
     text = models.CharField(
         verbose_name='Текст',
         max_length=4096,
-    )
-    viewed = models.BooleanField(
-        verbose_name='Просмотрено',
-        default=False,
     )
 
     class Meta:
