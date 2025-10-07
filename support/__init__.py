@@ -5,14 +5,16 @@ def get_asgi_application():
 
     from .routing import ws_urlpatterns
 
-    return ProtocolTypeRouter({
-        'http': django.core.asgi.get_asgi_application(),
-        'websocket': AuthMiddlewareStack(URLRouter(ws_urlpatterns)),
-    })
+    return ProtocolTypeRouter(
+        {
+            'http': django.core.asgi.get_asgi_application(),
+            'websocket': AuthMiddlewareStack(URLRouter(ws_urlpatterns)),
+        }
+    )
 
 
 __all__ = [
     'get_asgi_application',
 ]
 
-__version__ = '1.1.1'
+__version__ = '1.2.0'
