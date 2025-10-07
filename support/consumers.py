@@ -1,3 +1,5 @@
+from typing import cast
+
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from channels.layers import BaseChannelLayer, get_channel_layer
@@ -15,7 +17,10 @@ class BaseChatConsumer(AsyncJsonWebsocketConsumer):
 
     @classmethod
     def get_channel_layer(cls) -> BaseChannelLayer:
-        return get_channel_layer(cls.channel_layer_alias)
+        return cast(
+            BaseChannelLayer,
+            get_channel_layer(cls.channel_layer_alias),
+        )
 
     @property
     def _channel_layer(self) -> BaseChannelLayer:
@@ -49,7 +54,7 @@ class BaseChatConsumer(AsyncJsonWebsocketConsumer):
         User = get_user_model()  # noqa: N806
         self.get_ticket_group_names_set = set()
         try:
-            self.manager = await User.objects.aget(pk=self.scope['user'].pk)
+            self.manager = await User.objects.aget(pk=self.scope['user'].pk)  # pyright: ignore[reportTypedDictNotRequiredAccess, reportOptionalMemberAccess]
         except (User.DoesNotExist, AttributeError, KeyError):
             return await self.close()
         await self.add_to_group(self.unassigned_tickets_group_name)
@@ -70,12 +75,14 @@ class ChatConsumerSerializerMixin:
 
     @database_sync_to_async
     def serialize_messages(self, ticket_id: int) -> list[dict]:
-        return serializers.Message(
-            models.Message.objects.filter(
-                ticket__id=ticket_id,
-            ).order_by('-created_at'),
-            many=True,
-        ).data
+        return list(
+            serializers.Message(
+                models.Message.objects.filter(
+                    ticket__id=ticket_id,
+                ).order_by('-created_at'),
+                many=True,
+            ).data
+        )
 
 
 class ChatConsumerSender(ChatConsumerSerializerMixin, BaseChatConsumer):
@@ -149,7 +156,6 @@ class ChatConsumerReceiver(BaseChatConsumer):
             ticket=ticket,
             sender=models.Message.Sender.SUPPORT_MANAGER,
             text=text,
-            viewed=True,
         )
         return None, None
 
@@ -172,8 +178,5 @@ class ChatConsumer(ChatConsumerReceiver, ChatConsumerSender):
 
     async def receive_json(self, content: dict, **_):
         group, message = await self.get_group_and_message(content)
-        if all([group, message]):
-            await self._channel_layer.group_send(
-                group,
-                message,
-            )
+        if group and message:
+            await self._channel_layer.group_send(group, message)

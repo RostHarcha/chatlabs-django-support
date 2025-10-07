@@ -41,7 +41,7 @@ export function createMessage(messageObj) {
                 classes: ["text-white"],
             }),
             createElement("small", {
-                textContent: new Date(created_at).toLocaleTimeString(),
+                textContent: new Date(created_at).toLocaleString(),
                 classes: ["text-white/50"],
             }),
         ],

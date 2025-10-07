@@ -46,6 +46,7 @@ class Ticket(serializers.ModelSerializer):
     support_manager = SupportManager(
         read_only=True,
     )
+    last_message = serializers.SerializerMethodField()
 
     class Meta:
         model = models.Ticket
@@ -54,6 +55,12 @@ class Ticket(serializers.ModelSerializer):
             'id',
             'created_at',
         ]
+
+    def get_last_message(self, obj: models.Ticket):
+        last_message = obj.messages.order_by('created_at').last()
+        if not last_message:
+            return None
+        return Message(last_message).data
 
 
 class Message(serializers.ModelSerializer):

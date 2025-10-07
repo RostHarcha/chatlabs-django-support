@@ -1,5 +1,10 @@
+from typing import TYPE_CHECKING
+
 from django.conf import settings
 from django.db import models
+
+if TYPE_CHECKING:
+    from django_stubs_ext.db.models.manager import RelatedManager
 
 
 def get_telegram_user_model():
@@ -50,6 +55,9 @@ class Ticket(models.Model):
         verbose_name='Просмотрено',
         default=False,
     )
+
+    if TYPE_CHECKING:
+        messages: RelatedManager['Message']
 
     class Meta:
         verbose_name = 'Тикет'

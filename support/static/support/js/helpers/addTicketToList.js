@@ -1,6 +1,6 @@
 import { createElement } from "./createElement.js";
 import { state } from "../state.js";
-import {getTicketMessages, setTicketViewed} from "../scripts/apiController.js";
+import { getTicketMessages, setTicketViewed } from "../scripts/apiController.js";
 import {
     btnSetMyTicketsElement,
     btnSetUnassignedTicketsElement,
@@ -68,6 +68,29 @@ export function addTicketToList(ticketData) {
                 "self-center",
             ],
         });
+
+    // last_message может быть null
+    const lastMsg = ticketData.last_message;
+    const lastMsgDate = lastMsg
+        ? new Date(lastMsg.created_at).toLocaleString("ru-RU", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+        })
+        : "Нет сообщений";
+    // добавляем префикс в зависимости от отправителя
+    let lastMsgPrefix = "";
+    if (lastMsg) {
+        if (lastMsg.sender === "user") lastMsgPrefix = "Пользователь: ";
+        else if (lastMsg.sender === "supp") lastMsgPrefix = "Вы: ";
+    }
+    const lastMsgText = lastMsg
+        ? lastMsgPrefix +
+        (lastMsg.text.length > 30 ? lastMsg.text.slice(0, 30) + "…" : lastMsg.text)
+        : "";
+
     const ticketElement = createElement("div", {
         classes: [
             "w-full",
@@ -78,6 +101,9 @@ export function addTicketToList(ticketData) {
             "p-4",
             "shadow-md",
             "text-white",
+            "flex",
+            "flex-col",
+            "gap-1",
         ],
         attributes: { "data-ticket-id": ticketData.id },
         children: [
@@ -85,16 +111,21 @@ export function addTicketToList(ticketData) {
                 textContent: ticketData.title,
                 classes: ["text-lg", "font-bold"],
             }),
-            createElement("h6", {
-                textContent: `Создан: ${new Date(ticketData.created_at).toLocaleString()}`,
+            createElement("p", {
+                textContent: lastMsgDate,
+                classes: ["text-white/70", "text-sm"],
             }),
-            createElement("h6", {
-                textContent: `Менеджер: ${ticketData.support_manager?.first_name ?? "Не назначен"}`,
+            createElement("p", {
+                textContent: lastMsgText,
+                classes: ["text-white/90", "truncate"],
             }),
             indicator,
         ],
     });
-    // const ticketId = ticketElement.getAttribute('data-ticket-id');
-    ticketElement.addEventListener("click", () => handleClick(ticketData, ticketElement, indicator));
-    ticketList.prepend(ticketElement);
+
+    ticketElement.addEventListener("click", () =>
+        handleClick(ticketData, ticketElement, indicator)
+    );
+
+    ticketList.appendChild(ticketElement);
 }
